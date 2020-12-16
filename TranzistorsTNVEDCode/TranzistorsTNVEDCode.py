@@ -24,45 +24,39 @@ def number_of_articles(sheet):
         i+=1
     return i
 
-def DissipPower(text):
+def floatconverter(value):
+    """преобразование строковых значений в float получает числовые символы, может содержащие один знак / (выбирает число после млеша) и преобразует запятую в точку"""
+    if value.find('/') != -1:
+        splitvalue = value.split('/')
+        value = splitvalue[1]
+    value = value.replace(',', '.')
+    return float(value)
     
+        
+
+def DissipPower(text):
+    """считаывет небуквенные символы перед буквами в тексте кВт Вт мВт, переводит во float Вт и возвращает """
     result = re.findall(r'(\d*\S*\d+)Вт', text) #(r'Рассеиваемая мощность (\d*,\d*)Вт', text)
     if result == []:
         result = re.findall(r'(\d*\S*\d+)мВт', text)
         if result == []:
             result = re.findall(r'(\d*\S*\d+)кВт', text)
-    try:
-        result = result[0].replace(',', '.') #требуется разделить строки по символу /
-        #print('после реплейса ',result)
-        return float(result)
-    except ValueError:
-        try:
-            splires = result.split('/')
-            splires = splires[1]
-            splires = splires.replace(',', '.')
-            return float(splires)
-        except Exception as e:
-            print('Ошибка, ', e)
-            return None 
-        
-    except IndexError:
-        print('Мощность неопределена')
-        return None
-    # else:
-    #     try:
-    #         result = re.findall(r'(\d*\S*\d+)мВт', text)
-    #         result = result[0].replace(',', '.')
-    #         floatresult = float(result)
-    #         Wtresult  = floatresult * 0.001
-    #         return Wtresult
-    #     except ValueError as e:
-    #         print('Ошибка, ', e)
-    #         return None    
-    #     except IndexError:
-    #         print('Мощность неопределена')
-    #         return None
+            if result == []:
+                print('Мощность неопределена')
+                return None
+            else:
+                finalresult = floatconverter(result[0]) * 1000 # Переводим кВт в Вт
+                return finalresult
+        else:
+            finalresult = floatconverter(result[0]) * 0.001 # Переводим мВт в Вт
+            return finalresult 
+    else:
+        finalresult = floatconverter(result[0])
+        return finalresult # Выводим значение в Вт
+    
         
 def CodeReturn(value):
+    
     if value == None:
         return None
         
@@ -70,6 +64,7 @@ def CodeReturn(value):
         return "8541290000"
     else:
         return "8541210000"
+    
 
 def place_сodes(path):
     sheet0 = work_sheet(path)
@@ -83,10 +78,10 @@ def place_сodes(path):
         code = CodeReturn(value)
         #print('код ',code)
         if code == None:
-            print(i,'код ','NO CODE')
+            print(i,value ,'Вт, код: NO CODE (0000000000)')
             sheet['B'+str(i)] = "0000000000"
         else:
-            print(i,'код ',code)
+            print(i, value ,'Вт, код: ',code)
             sheet['B'+str(i)] = code
     wb.save(path)
     print('Коды транзисторов расставлены.')
@@ -95,6 +90,8 @@ path = 'tranzistorsCode.xlsx'
 place_сodes(path)
 #text = 'Кремниевые МОП-транзисторы с N-канальной структурой. Тип транзистора N-MOSFET, Полярность полевой, Напряжение сток-исток 650В, Ток стока 10А, Рассеиваемая мощность 275Вт, Корпус TO220F, Напряжение затвор-исток +\- 30В, Сопротивление в открытом состоянии 0,63Ом, Монтаж в отверстия печатной платы, Заряд затвора 45нC, рабочие температуры от -40 до 85°С, предназначены для использования в радиоэлектронном оборудовании промышленного назначения.'
 #print(DissipPower(text))
+#print(floatconverter('535,6'))
+
 
 
 
