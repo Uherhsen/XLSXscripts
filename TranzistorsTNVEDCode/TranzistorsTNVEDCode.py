@@ -27,40 +27,40 @@ def number_of_articles(sheet):
 def DissipPower(text):
     
     result = re.findall(r'(\d*\S*\d+)Вт', text) #(r'Рассеиваемая мощность (\d*,\d*)Вт', text)
-    if result != []: 
+    if result == []:
+        result = re.findall(r'(\d*\S*\d+)мВт', text)
+        if result == []:
+            result = re.findall(r'(\d*\S*\d+)кВт', text)
+    try:
+        result = result[0].replace(',', '.') #требуется разделить строки по символу /
+        #print('после реплейса ',result)
+        return float(result)
+    except ValueError:
         try:
-            result = result[0].replace(',', '.') #требуется разделить строки по символу /
-            #print('после реплейса ',result)
-            return float(result)
-        except ValueError:
-            try:
-                splires = result.split('/')
-                splires = splires[1]
-                splires = splires.replace(',', '.')
-                return float(splires)
-            except Exception as e:
-                print('Ошибка, ', e)
-                return None 
-            
-        except IndexError:
-            print('Мощность неопределена')
-            return None
-    else:
-        try:
-            result = re.findall(r'(\d*\S*\d+)мВт', text)
-            result = result[0].replace(',', '.')
-            floatresult = float(result)
-            Wtresult  = floatresult * 0.001
-            return Wtresult
-        except ValueError as e:
+            splires = result.split('/')
+            splires = splires[1]
+            splires = splires.replace(',', '.')
+            return float(splires)
+        except Exception as e:
             print('Ошибка, ', e)
-            return None    
-        except IndexError:
-            print('Мощность неопределена')
-            return None
+            return None 
         
-        
-        
+    except IndexError:
+        print('Мощность неопределена')
+        return None
+    # else:
+    #     try:
+    #         result = re.findall(r'(\d*\S*\d+)мВт', text)
+    #         result = result[0].replace(',', '.')
+    #         floatresult = float(result)
+    #         Wtresult  = floatresult * 0.001
+    #         return Wtresult
+    #     except ValueError as e:
+    #         print('Ошибка, ', e)
+    #         return None    
+    #     except IndexError:
+    #         print('Мощность неопределена')
+    #         return None
         
 def CodeReturn(value):
     if value == None:
